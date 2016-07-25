@@ -44,33 +44,33 @@ void loop() {
     Serial.println(diff);
     if(diff == 640){
      Serial.println("no face found");
-     state = S_STOP;
+     state = 7;
     }
     else if((diff < fwdRange) && (diff > -fwdRange)){
      Serial.println("straight ahead");
-     state = S_FOR_STRAIGHT;
+     state = 1;
      spd = 50;
       
     }
     else if(diff > fwdRange){
      Serial.println("turn right");      
-     state = S_FOR_RIGHT;
+     state = 3;
      spd = 0.0012*diff*diff + 48.737;
     }
     else if(diff < -fwdRange)
      Serial.println("turn left");    
-     state = S_FOR_LEFT;
+     state = 2;
      spd = 0.0012*diff*diff + 48.737;
     
     }
   else {
     diff = 700;
-    state = S_STOP;
+    state = 7;
   }
   Serial.println(diff);
   Serial.println(state);
   drive(spd);
-  delay(1000);
+  delay(10);
 }
 
 void drive(int spd) {

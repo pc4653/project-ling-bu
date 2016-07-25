@@ -8,6 +8,7 @@ import math
 import serial
 from time import sleep
 
+ser = serial.Serial('/dev/ttyACM0',9600,timeout=5)
 cv2.namedWindow('RGB')
 keep_running = True
 faceCascade = cv2.CascadeClassifier("haarcascade_frontalface_default.xml")
@@ -18,24 +19,24 @@ increment = True
 last_time = 0
 distance = 2047
 faces = 0
-timeout = 3;
+#timeout = 3;
 
 def body(dev, ctx):
     global tilt
     global light
     global increment
     global last_time
-    global timeout
+#    global timeout
     if not keep_running:
         raise freenect.Kill
 
-    if time.time() - last_time < timeout:
+    if time.time() - last_time < 3:
         return
     last_time = time.time()
     
     if tilt >= 30:
 	increment = False
-    if tilt <= 10:
+    if tilt <= 20:
 	increment = True
     
     led = light
@@ -47,11 +48,10 @@ def body(dev, ctx):
 		tilt = tilt - 5	
 	
         freenect.set_tilt_degs(dev, tilt)
-	if timeout > 1:
-		timeout = timeout/2;
-    else:
-	timeout = timeout + 2; 
-    print timeout
+#	if timeout > 1:
+#		timeout = timeout/2;
+#    else:
+#	timeout = timeout + 2; 
     #print('led[%d] tilt[%d] accel[%s]' % (led, tilt, freenect.get_accel(dev)))
 
 
@@ -67,6 +67,7 @@ def display_depth(dev, data, timestamp):
 	face_x_center = faces[0][0] + faces[0][2]/2
 	face_y_center = faces[0][1] + faces[0][3]/2
 	while data[face_x_center][face_y_center + count] == 2047:
+	  if face_y_center + count < 481:
 	    count = count + 1
 	if face_y_center + count < 481:
 		distance = data[face_x_center][face_y_center + count]
@@ -118,6 +119,10 @@ def display_rgb(dev, data, timestamp):
         search = True
 	light = 3
     
+
+    print diff
+    ser.write(str(diff-641)) 
+
 
     c = cv2.waitKey(10)
     if 'q' == chr(c & 255):
