@@ -7,7 +7,7 @@ import serial
 
 
 
-
+light = 2
 ser = serial.Serial('/dev/ttyACM0',9600,timeout=5)
 keep_running = True
 s = socket.socket()         # Create a socket object
@@ -20,15 +20,20 @@ print 'Got connection from', addr
 
 
 def body(dev, ctx):
+    global light
     if not keep_running:
 	conn.close()
 	s.shutdown(socket.SHUT_RDWR)
 	s.close()
 	print 'socket shutting down'
         raise freenect.Kill
+
+    led = light
+    freenect.set_led(dev, led)
  
     
 def display_rgb(dev, data, timestamp):
+    global light
     global keep_running
     dataString = data.tostring()
     conn.send(dataString)
@@ -37,8 +42,10 @@ def display_rgb(dev, data, timestamp):
 	output = int(transmit)
     	if output == 1:
 		print 'detecting mode'
+		light = 3
     	else:
 		print output
+		light = 1
 	ser.write(transmit)
     except ValueError:
 	pass	#this is to catch empty space when in tracking mode, necessary for blocking mode
