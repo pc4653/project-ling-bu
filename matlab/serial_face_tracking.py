@@ -4,10 +4,10 @@ import cv2
 import socket
 import signal
 import serial
+import time
 
-
-
-light = 2
+light = 0
+last_time = 0
 ser = serial.Serial('/dev/ttyACM0',9600,timeout=5)
 keep_running = True
 s = socket.socket()         # Create a socket object
@@ -21,6 +21,9 @@ print 'Got connection from', addr
 
 def body(dev, ctx):
     global light
+    global last_time
+
+
     if not keep_running:
 	conn.close()
 	s.shutdown(socket.SHUT_RDWR)
@@ -28,13 +31,17 @@ def body(dev, ctx):
 	print 'socket shutting down'
         raise freenect.Kill
 
-    led = light
-    freenect.set_led(dev, led)
- 
+    if time.time() - last_time < 1:
+        return
+    last_time = time.time()
+
+    freenect.set_led(dev, light) 
     
 def display_rgb(dev, data, timestamp):
-    global light
     global keep_running
+    global light
+
+
     dataString = data.tostring()
     conn.send(dataString)
     try:
