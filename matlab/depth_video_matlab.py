@@ -28,7 +28,6 @@ def display_depth(dev, data, timestamp):
     dataString = data.tostring()
     conn.send(dataString)
 
-   
 
     
 def handler(signum, frame):
